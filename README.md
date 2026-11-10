@@ -2,6 +2,15 @@
  
 The [Syncfusion&reg; **Word Processor (also known as Document Editor)**](https://www.syncfusion.com/javascript-ui-controls/js-word-processor?utm_source=docker&utm_medium=listing&utm_campaign=javascript-word-processor-docker) is a component with editing capabilities like Microsoft Word. It is used to create, edit, view, and print Word documents. It provides all the common word processing abilities, including editing text; formatting contents; resizing images and tables; finding and replacing text; importing, exporting, and printing Word documents; and using bookmarks and tables of contents. 
  
+> **AskCAB fork — package versions are pinned (do not use `*`).** The server's Syncfusion
+> packages must match the vendored client editor in `cab-website-v2`
+> (`apps/web-next/public/vendor/syncfusion/README.md`, currently **33.2.13**) and the version the
+> `SYNCFUSION_LICENSE_KEY` covers. With floating `Version="*"` the 20 Oct 2026 rebuild of the same
+> commit pulled Syncfusion 35.1.41, whose `System.Security.Cryptography.Xml 10.0.13` dependency
+> needs `System.Runtime.CompilerServices.Unsafe >= 6.1.2` while this project pins 4.x, and
+> `dotnet restore` failed with NU1605 (package downgrade). To upgrade, bump all four Syncfusion
+> packages and the client bundle together, in one change.
+
 This Docker project is the predefined Docker container for Syncfusion’s Word Processor backend functionalities. This server-side Web API project is targeting ASP.NET Core 6.0.
 
 If you want to add new functionality or customize any existing functionalities, then create your own Docker file by referencing this Docker project.
