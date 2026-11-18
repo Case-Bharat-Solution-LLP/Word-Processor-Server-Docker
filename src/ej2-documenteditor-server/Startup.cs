@@ -84,7 +84,26 @@ namespace EJ2DocumentEditorServer
             string license_key = Configuration["SYNCFUSION_LICENSE_KEY"];
             if (license_key!=null && license_key!=string.Empty)
                 Syncfusion.Licensing.SyncfusionLicenseProvider.RegisterLicense(license_key);
-            app.UseDeveloperExceptionPage();
+            // Shared-secret gate (audit 2026-11-18). The API already sends
+            // "Authorization: Bearer <DOC_EDITOR_SERVICE_SECRET>" on every call; until now
+            // nothing checked it, so the private network was the only protection. Set the
+            // same DOC_EDITOR_SERVICE_SECRET on this service to turn the check on. Unset
+            // = previous behaviour, so this deploy cannot break the editor by itself.
+            string serviceSecret = Configuration["DOC_EDITOR_SERVICE_SECRET"];
+            if (!string.IsNullOrEmpty(serviceSecret))
+            {
+                byte[] expected = System.Text.Encoding.UTF8.GetBytes("Bearer " + serviceSecret);
+                app.Use(async (context, next) =>
+                {
+                    byte[] given = System.Text.Encoding.UTF8.GetBytes(context.Request.Headers["Authorization"].ToString());
+                    if (!System.Security.Cryptography.CryptographicOperations.FixedTimeEquals(given, expected))
+                    {
+                        context.Response.StatusCode = 401;
+                        return;
+                    }
+                    await next();
+                });
+            }
             app.UseCors("AllowAllOrigins");
             if (env.IsDevelopment())
             {

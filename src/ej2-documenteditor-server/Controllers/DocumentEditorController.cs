@@ -203,47 +203,9 @@ namespace EJ2DocumentEditorServer.Controllers
             document.Dispose();
             return json;
         }
-        [HttpPost]
-        [EnableCors("AllowAllOrigins")]
-        [Route("LoadDocument")]
-        public string LoadDocument([FromForm] UploadDocument uploadDocument)
-        {
-            string documentPath = Path.Combine(path, uploadDocument.DocumentName);
-            Stream stream = null;
-            if (System.IO.File.Exists(documentPath))
-            {
-                byte[] bytes = System.IO.File.ReadAllBytes(documentPath);
-                stream = new MemoryStream(bytes);
-            }
-            else
-            {
-                bool result = Uri.TryCreate(uploadDocument.DocumentName, UriKind.Absolute, out Uri uriResult)
-                    && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);
-                if (result)
-                {
-                    stream = GetDocumentFromURL(uploadDocument.DocumentName).Result;
-                    if (stream != null)
-                        stream.Position = 0;
-                }
-            }
-            WordDocument document = WordDocument.Load(stream, FormatType.Docx);
-            string json = Newtonsoft.Json.JsonConvert.SerializeObject(document);
-            document.Dispose();
-            return json;
-        }
-        async Task<MemoryStream> GetDocumentFromURL(string url)
-        {
-            var client = new HttpClient(); ;
-            var response = await client.GetAsync(url);
-            var rawStream = await response.Content.ReadAsStreamAsync();
-            if (response.IsSuccessStatusCode)
-            {
-                MemoryStream docStream = new MemoryStream();
-                rawStream.CopyTo(docStream);
-                return docStream;
-            }
-            else { return null; }
-        }
+        // LoadDocument removed (audit 2026-11-18): the sample read any file path under the
+        // data folder, or fetched any http(s) URL the caller named, with no check. The API
+        // only uses Import, so the route now answers 404 like any unknown path.
         internal static FormatType GetFormatType(string format)
         {
             if (string.IsNullOrEmpty(format))
